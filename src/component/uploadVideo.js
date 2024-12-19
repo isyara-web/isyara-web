@@ -55,7 +55,7 @@ const UploadVideo = () => {
 
   // Fungsi upload dan transkripsi
   const handleUpload = async () => {
-    const endpoint = isFileUpload ? '/upload-file' : '/upload-link';
+    const endpoint = isFileUpload ? '/api/v1/upload-file' : '/api/v1/upload-link';
     if (isFileUpload && !videoFile) {
       alert('Harap unggah file video terlebih dahulu.');
       return;
@@ -106,8 +106,10 @@ const UploadVideo = () => {
   return (
     <div className="wrapper">
       <div className="container">
+        {/* Judul Form */}
         <h2 className="title">Upload Video atau Masukkan Link</h2>
-
+  
+        {/* Tombol Toggle Mode */}
         <div className="toggle-container">
           <button
             className={`toggle-button ${isFileUpload ? 'active' : ''}`}
@@ -124,53 +126,64 @@ const UploadVideo = () => {
             Input Link
           </button>
         </div>
-
-        {/* Input File atau Link */}
-        {isFileUpload ? (
-          <div>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="video/*"
-              onChange={handleFileChange}
-              className="input"
-              aria-label="Upload file video"
-            />
-            {videoPreview && (
-              <video
-                width="320"
-                height="240"
-                controls
-                src={videoPreview}
-                className="video-preview"
-                aria-label="Pratinjau video"
+  
+        {/* Input Form */}
+        <div className="input-container">
+          {isFileUpload ? (
+            <div className="file-upload-container">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="video/*"
+                onChange={handleFileChange}
+                className="input file-input"
+                aria-label="Upload file video"
               />
-            )}
-          </div>
-        ) : (
-          <input
-            type="url"
-            placeholder="Masukkan link YouTube"
-            value={videoLink}
-            onChange={handleLinkChange}
-            className="input"
-            aria-label="Input link YouTube"
-          />
-        )}
-
+              {videoPreview && (
+                <video
+                  width="320"
+                  height="240"
+                  controls
+                  src={videoPreview}
+                  className="video-preview"
+                  aria-label="Pratinjau video"
+                />
+              )}
+            </div>
+          ) : (
+            <div className="link-input-container">
+              <label htmlFor="videoLink" className="input-label">
+                Masukkan link YouTube
+              </label>
+              <input
+                id="videoLink"
+                type="url"
+                placeholder="Contoh: https://www.youtube.com/watch?v=12345"
+                value={videoLink}
+                onChange={handleLinkChange}
+                className="input link-input"
+                aria-label="Input link YouTube"
+              />
+            </div>
+          )}
+        </div>
+  
         {/* Tombol Upload */}
         <button
           onClick={handleUpload}
-          className="button"
+          className="button upload-button"
           disabled={isProcessing}
           aria-busy={isProcessing}
         >
           {isProcessing ? 'Processing...' : 'Upload dan Transkripsi'}
         </button>
-
-        {isProcessing && <p className="processing-info">Memproses video, mohon tunggu...</p>}
+  
+        {/* Pesan Proses */}
+        {isProcessing && (
+          <p className="processing-info">Memproses video, mohon tunggu...</p>
+        )}
       </div>
-
+  
       {/* Hasil Transkripsi */}
       {transcription && (
         <div className="transcription-card">
@@ -181,7 +194,7 @@ const UploadVideo = () => {
         </div>
       )}
     </div>
-  );
+  );  
 };
 
 export default UploadVideo;
