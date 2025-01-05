@@ -30,7 +30,7 @@ const styles = {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: '10px 20px',
+    padding: '25px 25px',
     backgroundColor: '#333',
     color: '#fff',
   },
