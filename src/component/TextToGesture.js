@@ -130,6 +130,10 @@ function TextToGesture() {
                     <video
                       controls
                       style={{ width: '200px', height: 'auto', borderRadius: '8px' }}
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                        alert('Video gagal dimuat!');
+                      }}
                     >
                       <source src={path} type="video/mp4" />
                       Your browser does not support the video tag.
