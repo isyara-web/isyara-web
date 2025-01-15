@@ -106,10 +106,33 @@ const UploadVideo = () => {
   return (
     <div className="wrapper">
       <div className="container">
-        {/* Judul Form */}
         <h2 className="title">Upload Video atau Masukkan Link</h2>
+
+        <div
+          style={{
+            marginBottom: '20px',
+            padding: '15px',
+            backgroundColor: '#e8f4fc', 
+            border: '2px dashed #007bff',
+            borderRadius: '8px',
+          }}
+        >
+          <h3 style={{ marginTop: 0, color: '#007bff' }}>Informasi</h3>
+          <p style={{
+            margin: 0, 
+            fontSize: '14px', 
+            lineHeight: '1.5', 
+            color: '#004085', 
+            textAlign: 'justify' // Menjadikan teks rata kanan-kiri
+          }}>
+            Aplikasi ini memungkinkan Anda untuk menerjemahkan video atau tautan YouTube menjadi video bahasa isyarat per kata. 
+            Anda dapat mengunggah video melalui tombol "Upload File" atau memasukkan tautan YouTube dengan memilih opsi "Input Link." 
+            Setelah video dipilih, klik tombol "Upload dan Transkripsi" untuk memulai proses. 
+            Sistem akan mengekstraksi teks dari video, memprosesnya, dan menerjemahkan setiap kata ke dalam bahasa isyarat. 
+            Hasil terjemahan akan ditampilkan dalam bentuk video bahasa isyarat per kata, memungkinkan Anda untuk memahami setiap kata dalam bahasa isyarat secara terpisah.
+          </p>
+        </div>
   
-        {/* Tombol Toggle Mode */}
         <div className="toggle-container">
           <button
             className={`toggle-button ${isFileUpload ? 'active' : ''}`}
@@ -127,7 +150,6 @@ const UploadVideo = () => {
           </button>
         </div>
   
-        {/* Input Form */}
         <div className="input-container">
           {isFileUpload ? (
             <div className="file-upload-container">
@@ -168,7 +190,6 @@ const UploadVideo = () => {
           )}
         </div>
   
-        {/* Tombol Upload */}
         <button
           onClick={handleUpload}
           className="button upload-button"
@@ -178,13 +199,11 @@ const UploadVideo = () => {
           {isProcessing ? 'Processing...' : 'Upload dan Transkripsi'}
         </button>
   
-        {/* Pesan Proses */}
         {isProcessing && (
           <p className="processing-info">Memproses video, mohon tunggu...</p>
         )}
       </div>
   
-      {/* Hasil Transkripsi */}
       {transcription && (
         <div className="transcription-card">
           <h3 className="transcription-title">Hasil Transkripsi</h3>

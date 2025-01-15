@@ -74,7 +74,11 @@ function TextToGesture() {
       >
         <h3 style={{ marginTop: 0, color: '#007bff' }}>Informasi</h3>
         <p style={{ margin: 0, fontSize: '14px', lineHeight: '1.5', color: '#004085' }}>
-          Jika memasukkan nama, maka dipisahkan spasi per hurufnya. Sebagai contoh: <strong>jaja haryono</strong> menjadi <strong>j a j a h a r y o n o</strong>.
+          Aplikasi ini memungkinkan Anda untuk menerjemahkan teks menjadi video bahasa isyarat BISINDO dengan mudah. 
+          Masukkan teks ke dalam kolom yang tersedia di bawah label "Enter Text," lalu klik tombol "Translate" untuk memulai proses terjemahan. 
+          Setelah itu, hasil terjemahan akan ditampilkan dalam bentuk video atau animasi bahasa isyarat yang dapat Anda tonton. 
+          Jika ingin menerjemahkan teks lain, hapus teks sebelumnya, masukkan teks baru, dan klik "Translate" lagi. 
+          Aplikasi ini paling efektif untuk teks sederhana dan jelas, sehingga pengguna disarankan untuk menghindari kalimat yang terlalu kompleks atau menggunakan slang.
         </p>
       </div>
 
