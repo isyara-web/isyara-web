@@ -5,12 +5,12 @@ const UploadVideo = () => {
   const [videoPreview, setVideoPreview] = useState(null);
   const [videoLink, setVideoLink] = useState('');
   const [transcription, setTranscription] = useState('');
+  const [gesturePaths, setGesturePaths] = useState([]); // Array untuk menyimpan gesture path
   const [isProcessing, setIsProcessing] = useState(false);
-  const [isFileUpload, setIsFileUpload] = useState(true); // Toggle file or link
+  const [isFileUpload, setIsFileUpload] = useState(true);
 
-  const fileInputRef = useRef(null); // Refs for file input
+  const fileInputRef = useRef(null);
 
-  // Fungsi untuk reset input
   const resetInputs = () => {
     setVideoFile(null);
     setVideoPreview(null);
@@ -18,13 +18,11 @@ const UploadVideo = () => {
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
-  // Fungsi toggle upload file / link
   const handleToggle = (isFile) => {
     resetInputs();
     setIsFileUpload(isFile);
   };
 
-  // Fungsi untuk menangani perubahan file video
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file && file.type.startsWith('video/')) {
@@ -40,20 +38,17 @@ const UploadVideo = () => {
     }
   };
 
-  // Fungsi untuk menangani perubahan URL video
   const handleLinkChange = (e) => {
     const link = e.target.value;
     setVideoLink(link);
     setVideoFile(null);
   };
 
-  // Validasi format link YouTube
   const isValidYouTubeURL = (url) => {
     const youtubeRegex = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+$/;
     return youtubeRegex.test(url);
   };
 
-  // Fungsi upload dan transkripsi
   const handleUpload = async () => {
     const endpoint = isFileUpload ? '/api/v1/upload-file' : '/api/v1/upload-link';
     if (isFileUpload && !videoFile) {
@@ -71,7 +66,6 @@ const UploadVideo = () => {
     try {
       let response;
       if (isFileUpload) {
-        // Jika upload file
         const formData = new FormData();
         formData.append('video', videoFile);
         response = await fetch(`${process.env.REACT_APP_API_URL}${endpoint}`, {
@@ -79,7 +73,6 @@ const UploadVideo = () => {
           body: formData,
         });
       } else {
-        // Jika upload link
         response = await fetch(`${process.env.REACT_APP_API_URL}${endpoint}`, {
           method: 'POST',
           headers: {
@@ -95,6 +88,7 @@ const UploadVideo = () => {
 
       const result = await response.json();
       setTranscription(result.transcription || 'Tidak ada hasil transkripsi.');
+      setGesturePaths(result.gesture_paths || []); // Ambil gesture paths
     } catch (error) {
       console.error('Error:', error);
       setTranscription('Terjadi kesalahan saat memproses video.');
@@ -108,48 +102,21 @@ const UploadVideo = () => {
       <div className="container">
         <h2 className="title">Upload Video atau Masukkan Link</h2>
 
-        <div
-          style={{
-            marginBottom: '20px',
-            padding: '15px',
-            backgroundColor: '#e8f4fc', 
-            border: '2px dashed #007bff',
-            borderRadius: '8px',
-          }}
-        >
-          <h3 style={{ marginTop: 0, color: '#007bff' }}>Informasi</h3>
-          <p style={{
-            margin: 0, 
-            fontSize: '14px', 
-            lineHeight: '1.5', 
-            color: '#004085', 
-            textAlign: 'justify' // Menjadikan teks rata kanan-kiri
-          }}>
-            Aplikasi ini memungkinkan Anda untuk menerjemahkan video atau tautan YouTube menjadi video bahasa isyarat per kata. 
-            Anda dapat mengunggah video melalui tombol "Upload File" atau memasukkan tautan YouTube dengan memilih opsi "Input Link." 
-            Setelah video dipilih, klik tombol "Upload dan Transkripsi" untuk memulai proses. 
-            Sistem akan mengekstraksi teks dari video, memprosesnya, dan menerjemahkan setiap kata ke dalam bahasa isyarat. 
-            Hasil terjemahan akan ditampilkan dalam bentuk video bahasa isyarat per kata, memungkinkan Anda untuk memahami setiap kata dalam bahasa isyarat secara terpisah.
-          </p>
-        </div>
-  
         <div className="toggle-container">
           <button
             className={`toggle-button ${isFileUpload ? 'active' : ''}`}
             onClick={() => handleToggle(true)}
-            aria-pressed={isFileUpload}
           >
             Upload File
           </button>
           <button
             className={`toggle-button ${!isFileUpload ? 'active' : ''}`}
             onClick={() => handleToggle(false)}
-            aria-pressed={!isFileUpload}
           >
             Input Link
           </button>
         </div>
-  
+
         <div className="input-container">
           {isFileUpload ? (
             <div className="file-upload-container">
@@ -159,7 +126,6 @@ const UploadVideo = () => {
                 accept="video/*"
                 onChange={handleFileChange}
                 className="input file-input"
-                aria-label="Upload file video"
               />
               {videoPreview && (
                 <video
@@ -168,7 +134,6 @@ const UploadVideo = () => {
                   controls
                   src={videoPreview}
                   className="video-preview"
-                  aria-label="Pratinjau video"
                 />
               )}
             </div>
@@ -184,36 +149,50 @@ const UploadVideo = () => {
                 value={videoLink}
                 onChange={handleLinkChange}
                 className="input link-input"
-                aria-label="Input link YouTube"
               />
             </div>
           )}
         </div>
-  
+
         <button
           onClick={handleUpload}
           className="button upload-button"
           disabled={isProcessing}
-          aria-busy={isProcessing}
         >
           {isProcessing ? 'Processing...' : 'Upload dan Transkripsi'}
         </button>
-  
+
         {isProcessing && (
           <p className="processing-info">Memproses video, mohon tunggu...</p>
         )}
       </div>
-  
+
       {transcription && (
         <div className="transcription-card">
           <h3 className="transcription-title">Hasil Transkripsi</h3>
           <div className="transcription-content">
             <p>{transcription}</p>
           </div>
+
+          <h3 className="gesture-title">Terjemahan Bahasa Isyarat</h3>
+          <div className="gesture-container">
+            {gesturePaths.map((gesture, index) => (
+              <div key={index} className="gesture-item">
+                <p className="gesture-label">{gesture.text}</p> {/* Tampilkan teks di atas video */}
+                <video
+                  width="160"
+                  height="120"
+                  controls
+                  src={gesture.path}
+                  className="gesture-video"
+                />
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </div>
-  );  
+  );
 };
 
 export default UploadVideo;
