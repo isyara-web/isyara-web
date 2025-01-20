@@ -4,7 +4,8 @@ function TextToGesture() {
   const [inputText, setInputText] = useState('');
   const [gestures, setGestures] = useState([]);
   const [error, setError] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);  
+  const [isListening, setIsListening] = useState(false);
 
   const chunkArray = (array, size) => {
     const result = [];
@@ -59,6 +60,34 @@ function TextToGesture() {
     }
   };
 
+  const handleVoiceInput = () => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert("Your browser does not support voice input.");
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'id-ID';
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    recognition.onstart = () => setIsListening(true);
+    recognition.onend = () => setIsListening(false);
+
+    recognition.onresult = (event) => {
+      const voiceText = event.results[0][0].transcript;
+      setInputText((prevText) => `${prevText} ${voiceText}`.trim());
+    };
+
+    recognition.onerror = (event) => {
+      setIsListening(false);
+      alert('Voice recognition error: ' + event.error);
+    };
+
+    recognition.start();
+  };
+
   return (
     <div style={{ padding: '80px', fontFamily: 'Arial, sans-serif' }}>
       <h1>Text to Sign Language Gesture</h1>
@@ -83,8 +112,8 @@ function TextToGesture() {
       </div>
 
       <form onSubmit={handleSubmit}>
-        <div style={{ marginBottom: '10px' }}>
-          <label htmlFor="text" style={{ display: 'block', marginBottom: '5px' }}>
+        <div style={{ marginBottom: '10px', display: 'flex', alignItems: 'center', position: 'relative' }}>
+          <label htmlFor="text" style={{ marginRight: '10px' }}>
             Enter Text:
           </label>
           <input
@@ -92,9 +121,50 @@ function TextToGesture() {
             id="text"
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
-            style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
+            style={{ flex: 1, padding: '8px', boxSizing: 'border-box', marginRight: '10px' }}
             required
           />
+          <button
+            type="button"
+            onClick={handleVoiceInput}
+            style={{
+              backgroundColor: isListening ? '#e9ecef' : '#007bff',
+              color: '#fff',
+              border: 'none',
+              borderRadius: '50%',
+              width: '40px',
+              height: '40px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              position: 'relative',
+            }}
+            title="Input Voice"
+          >
+            <img
+              src={isListening ? '/icons/wave-sound.png' : '/icons/mic.png'}
+              alt="Mic Icon"
+              style={{ width: '24px', height: '24px' }}
+            />
+          </button>
+          {isListening && (
+            <div
+              style={{
+                position: 'absolute',
+                top: '50px',
+                left: 'calc(100% - 100px)',
+                backgroundColor: '#fff',
+                border: '1px solid #ccc',
+                borderRadius: '8px',
+                padding: '10px',
+                boxShadow: '0 2px 6px rgba(0, 0, 0, 0.2)',
+                zIndex: 10,
+              }}
+            >
+              <p style={{ margin: 0, fontSize: '14px', color: '#007bff' }}>Speak now</p>
+            </div>
+          )}
         </div>
         <button
           type="submit"
