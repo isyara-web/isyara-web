@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 
 const UploadVideo = () => {
   const [videoFile, setVideoFile] = useState(null);
@@ -8,8 +8,26 @@ const UploadVideo = () => {
   const [gesturePaths, setGesturePaths] = useState([]); // Array untuk menyimpan gesture path
   const [isProcessing, setIsProcessing] = useState(false);
   const [isFileUpload, setIsFileUpload] = useState(true);
-
   const fileInputRef = useRef(null);
+  const [currentPlayingIndex, setCurrentPlayingIndex] = useState(null);
+  const [isPaused, setIsPaused] = useState(false);
+  const [remainingTime, setRemainingTime] = useState(0); // Untuk melanjutkan waktu yang tersisa
+  const videoElement = useRef(document.createElement('video'));
+  let playTimeout = useRef(null);
+  const videoRefs = useRef([]);
+
+  const handleVideoEnd = useCallback(() => {
+    if (currentPlayingIndex < gesturePaths.length - 1) {
+      setCurrentPlayingIndex(currentPlayingIndex + 1);
+    } else {
+      setCurrentPlayingIndex(null); // All videos finished
+    }
+  }, [currentPlayingIndex, gesturePaths.length]);
+
+  useEffect(() => {
+    const videoEl = videoElement.current;
+    videoEl.onended = handleVideoEnd; // Attach event listener for when video ends
+  }, [handleVideoEnd]);
 
   const resetInputs = () => {
     setVideoFile(null);
@@ -95,6 +113,82 @@ const UploadVideo = () => {
     } finally {
       setIsProcessing(false);
     }
+  };
+
+  const playAllVideos = useCallback(() => { // CHANGE: Use useCallback for optimization
+    if (gesturePaths.length === 0) return;
+
+    let index = currentPlayingIndex !== null ? currentPlayingIndex : 0; // Start from current playing index if available
+    setIsPaused(false);
+
+    const playNextVideo = () => {
+      if (index < gesturePaths.length) {
+        setCurrentPlayingIndex(index);
+        videoElement.current.src = gesturePaths[index]?.path;
+
+        videoElement.current.onloadedmetadata = () => {
+          const videoDuration = remainingTime || videoElement.current.duration * 1000;
+
+          if (!isPaused) {
+            playTimeout.current = setTimeout(() => {
+              setRemainingTime(0); // Reset remaining time
+              index += 1;
+              if (index < gesturePaths.length) {
+                playNextVideo();
+              } else {
+                setCurrentPlayingIndex(null); // All videos finished
+              }
+            }, videoDuration);
+          }
+        };
+
+        videoElement.current.load();
+        videoElement.current.play();
+      }
+    };
+
+    playNextVideo();
+  }, [gesturePaths, currentPlayingIndex, isPaused, remainingTime]); // CHANGE: Add dependencies
+
+  const pauseVideos = () => {
+    setIsPaused(true);
+    clearTimeout(playTimeout.current); // Stop playback
+    if (videoElement.current.readyState >= 1) {
+      const remaining = videoElement.current.duration * 1000 - videoElement.current.currentTime * 1000;
+      setRemainingTime(remaining); // Save the remaining time
+    }
+    videoElement.current.pause();
+  };
+
+  const resumeVideos = () => {
+    setIsPaused(false);
+    playAllVideos(); // CHANGE: Use playAllVideos to resume playing all videos
+  };
+
+  const resetVideos = () => {
+    setIsPaused(false);
+    setCurrentPlayingIndex(null);
+    setRemainingTime(0); // Reset remaining time
+    clearTimeout(playTimeout.current); // Clear any timeouts
+    videoElement.current.pause();
+    videoElement.current.currentTime = 0;
+  };
+
+  const handlePlayAll = () => {
+    let index = 0;
+
+    const playNext = () => {
+      if (index < videoRefs.current.length) {
+        const currentVideo = videoRefs.current[index];
+        currentVideo.play();
+        currentVideo.onended = () => {
+          index += 1;
+          playNext();
+        };
+      }
+    };
+
+    playNext();
   };
 
   return (
@@ -200,20 +294,64 @@ const UploadVideo = () => {
           </div>
 
           <h3 className="gesture-title">Terjemahan Bahasa Isyarat</h3>
-          <div className="gesture-container">
-            {gesturePaths.map((gesture, index) => (
-              <div key={index} className="gesture-item">
-                <p className="gesture-label">{gesture.text}</p> {/* Tampilkan teks di atas video */}
-                <video
-                  width="160"
-                  height="120"
-                  controls
-                  src={gesture.path}
-                  className="gesture-video"
-                />
+          <button onClick={handlePlayAll} className="button play-all-button">
+            Play All
+          </button>
+          <div style={{ display: 'flex', alignItems: 'flex-start' }}>
+            <div className="gesture-container" style={{ flex: 1 }}>
+              {gesturePaths.map((gesture, index) => (
+                <div key={index} className="gesture-item">
+                  <p className="gesture-label">{gesture.text}</p>
+                  <video
+                    ref={(el) => (videoRefs.current[index] = el)}
+                    width="160"
+                    height="120"
+                    controls
+                    src={gesture.path}
+                    className="gesture-video"
+                  />
+                </div>
+              ))}
+            </div>
+            <div style={{ flex: 1, marginLeft: '20px' }}>
+              <h4>Preview Video</h4>
+              <div className="control-buttons">
+                <button onClick={playAllVideos} disabled={!isPaused && currentPlayingIndex !== null}>
+                  Play
+                </button>
+                <button onClick={pauseVideos} disabled={isPaused || currentPlayingIndex === null}>
+                  Pause
+                </button>
+                <button onClick={resumeVideos} disabled={!isPaused || currentPlayingIndex === null}>
+                  Resume
+                </button>
+                <button onClick={resetVideos}>
+                  Reset
+                </button>
               </div>
-            ))}
+              {currentPlayingIndex !== null ? (
+                <>
+                  <p>
+                    Sedang Memutar:{" "}
+                    <strong>
+                      {gesturePaths[currentPlayingIndex]?.text || "Tidak ada"}
+                    </strong>
+                  </p>
+                  <video
+                    width="320"
+                    height="240"
+                    controls
+                    autoPlay
+                    src={gesturePaths[currentPlayingIndex]?.path}
+                    className="gesture-preview"
+                  />
+                </>
+              ) : (
+                <p>Pilih "Play All" untuk memulai.</p>
+              )}
+            </div>
           </div>
+          
         </div>
       )}
     </div>
