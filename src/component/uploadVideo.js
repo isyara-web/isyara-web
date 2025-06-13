@@ -107,6 +107,7 @@ const UploadVideo = () => {
       const result = await response.json();
       setTranscription(result.transcription || 'Tidak ada hasil transkripsi.');
       setGesturePaths(result.gesture_paths || []); // Ambil gesture paths
+      console.log(result.gesture_paths)
     } catch (error) {
       console.error('Error:', error);
       setTranscription('Terjadi kesalahan saat memproses video.');
@@ -115,64 +116,71 @@ const UploadVideo = () => {
     }
   };
 
-  const playAllVideos = useCallback(() => { // CHANGE: Use useCallback for optimization
-    if (gesturePaths.length === 0) return;
-
-    let index = currentPlayingIndex !== null ? currentPlayingIndex : 0; // Start from current playing index if available
+  const playAllVideos = useCallback(() => {
+    if (!gesturePaths.length) return;
+  
+    let startIndex = currentPlayingIndex !== null ? currentPlayingIndex : 0;
     setIsPaused(false);
-
-    const playNextVideo = () => {
-      if (index < gesturePaths.length) {
-        setCurrentPlayingIndex(index);
-        videoElement.current.src = gesturePaths[index]?.path;
-
-        videoElement.current.onloadedmetadata = () => {
-          const videoDuration = remainingTime || videoElement.current.duration * 1000;
-
-          if (!isPaused) {
-            playTimeout.current = setTimeout(() => {
-              setRemainingTime(0); // Reset remaining time
-              index += 1;
-              if (index < gesturePaths.length) {
-                playNextVideo();
-              } else {
-                setCurrentPlayingIndex(null); // All videos finished
-              }
-            }, videoDuration);
-          }
-        };
-
-        videoElement.current.load();
-        videoElement.current.play();
+  
+    const play = (index) => {
+      if (index >= gesturePaths.length) {
+        setCurrentPlayingIndex(null);
+        return;
       }
+  
+      const video = videoElement.current;
+      const path = gesturePaths[index].path;
+      setCurrentPlayingIndex(index);
+      video.src = path;
+  
+      video.onloadedmetadata = () => {
+        const duration = remainingTime || video.duration * 1000;
+  
+        video.play();
+        playTimeout.current = setTimeout(() => {
+          setRemainingTime(0);
+          play(index + 1);
+        }, duration);
+      };
+  
+      video.load();
     };
-
-    playNextVideo();
-  }, [gesturePaths, currentPlayingIndex, isPaused, remainingTime]); // CHANGE: Add dependencies
-
+  
+    play(startIndex);
+  }, [gesturePaths, currentPlayingIndex, remainingTime]);
+  
   const pauseVideos = () => {
     setIsPaused(true);
-    clearTimeout(playTimeout.current); // Stop playback
-    if (videoElement.current.readyState >= 1) {
-      const remaining = videoElement.current.duration * 1000 - videoElement.current.currentTime * 1000;
-      setRemainingTime(remaining); // Save the remaining time
+    clearTimeout(playTimeout.current);
+  
+    const video = videoElement.current;
+    if (video.readyState >= 1) {
+      const remaining = (video.duration - video.currentTime) * 1000;
+      setRemainingTime(remaining);
     }
-    videoElement.current.pause();
+    video.pause();
   };
-
+  
   const resumeVideos = () => {
     setIsPaused(false);
-    playAllVideos(); // CHANGE: Use playAllVideos to resume playing all videos
+    if (currentPlayingIndex !== null) {
+      playAllVideos();
+    }
   };
+  
 
   const resetVideos = () => {
     setIsPaused(false);
     setCurrentPlayingIndex(null);
-    setRemainingTime(0); // Reset remaining time
-    clearTimeout(playTimeout.current); // Clear any timeouts
-    videoElement.current.pause();
-    videoElement.current.currentTime = 0;
+    setRemainingTime(0);
+    clearTimeout(playTimeout.current);
+  
+    const video = videoElement.current;
+    video.pause();
+    video.currentTime = 0;
+    video.src = '';
   };
+  
 
   const handlePlayAll = () => {
     let index = 0;
@@ -200,23 +208,23 @@ const UploadVideo = () => {
           style={{
             marginBottom: '20px',
             padding: '15px',
-            backgroundColor: '#e8f4fc', 
+            backgroundColor: '#e8f4fc',
             border: '2px dashed #007bff',
             borderRadius: '8px',
           }}
         >
           <h3 style={{ marginTop: 0, color: '#007bff' }}>Informasi</h3>
           <p style={{
-            margin: 0, 
-            fontSize: '14px', 
-            lineHeight: '1.5', 
-            color: '#004085', 
+            margin: 0,
+            fontSize: '14px',
+            lineHeight: '1.5',
+            color: '#004085',
             textAlign: 'justify'
           }}>
-            Aplikasi ini memungkinkan Anda untuk menerjemahkan video atau tautan YouTube menjadi video bahasa isyarat per kata. 
-            Anda dapat mengunggah video melalui tombol "Upload File" atau memasukkan tautan YouTube dengan memilih opsi "Input Link." 
-            Setelah video dipilih, klik tombol "Upload dan Transkripsi" untuk memulai proses. 
-            Sistem akan mengekstraksi teks dari video, memprosesnya, dan menerjemahkan setiap kata ke dalam bahasa isyarat. 
+            Aplikasi ini memungkinkan Anda untuk menerjemahkan video atau tautan YouTube menjadi video bahasa isyarat per kata.
+            Anda dapat mengunggah video melalui tombol "Upload File" atau memasukkan tautan YouTube dengan memilih opsi "Input Link."
+            Setelah video dipilih, klik tombol "Upload dan Transkripsi" untuk memulai proses.
+            Sistem akan mengekstraksi teks dari video, memprosesnya, dan menerjemahkan setiap kata ke dalam bahasa isyarat.
             Hasil terjemahan akan ditampilkan dalam bentuk video bahasa isyarat per kata, memungkinkan Anda untuk memahami setiap kata dalam bahasa isyarat secara terpisah.
           </p>
         </div>
@@ -299,15 +307,15 @@ const UploadVideo = () => {
           </button>
           <div style={{ display: 'flex', alignItems: 'flex-start' }}>
             <div className="gesture-container" style={{ flex: 1 }}>
-              {gesturePaths.map((gesture, index) => (
+              {gesturePaths.map((gestureUrl, index) => (
                 <div key={index} className="gesture-item">
-                  <p className="gesture-label">{gesture.text}</p>
+                  <p className="gesture-label">Gesture {index + 1}</p>
                   <video
                     ref={(el) => (videoRefs.current[index] = el)}
                     width="160"
                     height="120"
                     controls
-                    src={gesture.path}
+                    src={gestureUrl}
                     className="gesture-video"
                   />
                 </div>
@@ -351,7 +359,7 @@ const UploadVideo = () => {
               )}
             </div>
           </div>
-          
+
         </div>
       )}
     </div>
