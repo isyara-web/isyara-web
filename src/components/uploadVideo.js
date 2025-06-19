@@ -12,7 +12,10 @@ const UploadVideo = () => {
   const [currentPlayingIndex, setCurrentPlayingIndex] = useState(null);
   const videoElement = useRef(document.createElement('video'));
   const videoRefs = useRef([]);
-  const [currentPlayingVideo, setCurrentPlayingVideo] = useState(null); // { url, name }
+  const [currentPlayingVideo, setCurrentPlayingVideo] = useState(null);
+  const [isPaused, setIsPaused] = useState(false);
+  const videoIndexRef = useRef(0);
+
 
   const handleVideoEnd = useCallback(() => {
     if (currentPlayingIndex < gesturePaths.length - 1) {
@@ -62,12 +65,12 @@ const UploadVideo = () => {
 
   const isSupportedVideo = (url) => {
     if (!url || typeof url !== 'string') return false;
-  
+
     const validExtensions = ['.mp4', '.webm', '.ogg'];
     return validExtensions.some(ext => url.toLowerCase().endsWith(ext));
   };
-  
-  
+
+
   const isValidYouTubeURL = (url) => {
     const youtubeRegex = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+$/;
     return youtubeRegex.test(url);
@@ -122,59 +125,79 @@ const UploadVideo = () => {
     }
   };
 
+  const playNext = useCallback(() => {
+    if (isPaused) return; // jika paused, tidak lanjut
+
+    while (videoIndexRef.current < videoRefs.current.length && !videoRefs.current[videoIndexRef.current]) {
+      videoIndexRef.current++;
+    }
+
+    if (videoIndexRef.current < videoRefs.current.length) {
+      const currentVideo = videoRefs.current[videoIndexRef.current];
+      const gestureUrl = gesturePaths[videoIndexRef.current];
+      const filename = gestureUrl.split('/').pop() || '';
+      let displayName = filename.includes('_') ? filename.split('_')[0] : filename.replace('.mp4', '');
+
+      setCurrentPlayingVideo({ url: gestureUrl, name: displayName });
+
+      const onError = () => {
+        console.warn(`Video gagal dimuat (skip): ${gestureUrl}`);
+        currentVideo.onerror = null;
+        videoIndexRef.current++;
+        playNext();
+      };
+
+      const onEnded = () => {
+        currentVideo.onerror = null;
+        currentVideo.onended = null;
+        videoIndexRef.current++;
+        playNext();
+      };
+
+      currentVideo.onerror = onError;
+      currentVideo.onended = onEnded;
+
+      const playPromise = currentVideo.play();
+      if (playPromise !== undefined) {
+        playPromise.catch((err) => {
+          console.warn('Video tidak bisa diputar secara otomatis:', err);
+          onError();
+        });
+      }
+    } else {
+      setCurrentPlayingVideo(null); // selesai
+    }
+  }, [gesturePaths, isPaused]);
+
   const handlePlayAll = () => {
-    let index = 0;
-
-    const playNext = () => {
-      while (index < videoRefs.current.length && !videoRefs.current[index]) {
-        index++;
-      }
-      if (index < videoRefs.current.length) {
-        const currentVideo = videoRefs.current[index];
-        const gestureUrl = gesturePaths[index];
-        const filename = gestureUrl.split('/').pop() || '';
-        let displayName = filename;
-
-        if (gestureUrl.includes('/uploads/') && filename.includes('_')) {
-          displayName = filename.split('_')[0];
-        } else {
-          displayName = filename.replace('.mp4', '');
-        }
-
-        setCurrentPlayingVideo({ url: gestureUrl, name: displayName });
-
-        const onError = () => {
-          console.warn(`Video gagal dimuat (skip): ${gestureUrl}`);
-          currentVideo.onerror = null;
-          index++;
-          playNext(); 
-        };
-  
-        const onEnded = () => {
-          currentVideo.onerror = null;
-          currentVideo.onended = null;
-          index++;
-          playNext();
-        };
-  
-        currentVideo.onerror = onError;
-        currentVideo.onended = onEnded;
-
-        const playPromise = currentVideo.play();
-        if (playPromise !== undefined) {
-          playPromise.catch((err) => {
-            console.warn('Video tidak bisa diputar secara otomatis:', err);
-            onError(); // Treat as failed, skip to next
-          });
-        }
-      } else {
-        setCurrentPlayingVideo(null); // Semua video selesai
-      }
-    };
-
+    setIsPaused(false);
+    videoIndexRef.current = 0;
     playNext();
   };
 
+  const handlePause = () => {
+    setIsPaused(true);
+    if (videoRefs.current[videoIndexRef.current]) {
+      videoRefs.current[videoIndexRef.current].pause();
+    }
+  };
+
+  const handleResume = () => {
+    setIsPaused(false);
+    if (videoRefs.current[videoIndexRef.current]) {
+      videoRefs.current[videoIndexRef.current].play().catch((err) => {
+        console.warn('Tidak dapat melanjutkan video:', err);
+      });
+    }
+    playNext();
+  };
+
+  const handleReset = () => {
+    setIsPaused(false);
+    setCurrentPlayingVideo(null);
+    videoIndexRef.current = 0;
+    videoRefs.current.forEach((video) => video?.pause());
+  };
 
   return (
     <div className="wrapper">
@@ -279,26 +302,39 @@ const UploadVideo = () => {
           </div>
 
           <h3 className="gesture-title">Terjemahan Bahasa Isyarat</h3>
-          <button onClick={handlePlayAll} className="button play-all-button">
-            Play All
-          </button>
+          <div style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
+            <button onClick={handlePlayAll} className="button play-all-button">Play All</button>
+            <button onClick={handlePause} className="button-pause">Pause</button>
+            <button onClick={handleResume} className="button-resume">Resume</button>
+            <button onClick={handleReset} className="button-reset">Reset</button>
+          </div>
+
           <div style={{ display: 'flex', alignItems: 'flex-start' }}>
             <div className="gesture-container" style={{ flex: 1 }}>
               {gesturePaths.map((gestureUrl, index) => {
                 const path = gestureUrl;
                 const filename = path?.split('/').pop() || '';
-                let displayName = filename;
+                let displayName = decodeURIComponent(filename);
+                const isSkipped = path?.startsWith('SKIPPED:');
 
-                if (path.includes('/uploads/') && filename.includes('_')) {
-                  displayName = filename.split('_')[0];
+                if (isSkipped) {
+                  displayName = path.replace('SKIPPED:', '').trim();
                 } else {
-                  displayName = filename.replace('.mp4', '');
+                  const filename = path?.split('/').pop() || '';
+                  displayName = decodeURIComponent(filename);
+              
+                  if (path.includes('/uploads/') && filename.includes('_')) {
+                    displayName = decodeURIComponent(filename.split('_')[0]);
+                  } else {
+                    displayName = decodeURIComponent(filename.replace('.mp4', ''));
+                  }
                 }
+
                 const isValidVideo = isSupportedVideo(path);
                 return (
                   <div key={index} className="gesture-item">
-                    <p className="gesture-label">{displayName}</p>
-                    {isValidVideo ? (
+                    <p className="gesture-label">{`${index + 1}. ${displayName}`}</p>
+                    {isValidVideo && !isSkipped ? (
                       <video
                         ref={(el) => (videoRefs.current[index] = el)}
                         width="160"
@@ -308,13 +344,31 @@ const UploadVideo = () => {
                         className="gesture-video"
                         onError={() => console.warn(`Video gagal dimuat: ${path}`)}
                       />
-                      ) : (
-                        <div style={{ width: '160px', height: '120px', border: '1px dashed red', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                          <p style={{ color: 'red', fontSize: '12px', textAlign: 'center' }}>
-                            Video tidak tersedia
-                          </p>
-                        </div>
-                      )}
+                    ) : (
+                      <div
+                        style={{
+                          width: '160px',
+                          height: '120px',
+                          border: `1px dashed ${isSkipped ? '#ccc' : 'red'}`,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          backgroundColor: isSkipped ? '#f9f9f9' : '#fff0f0',
+                        }}
+                      >
+                        <p
+                          style={{
+                            color: isSkipped ? '#686D76' : 'red',
+                            fontSize: '14px',
+                            textAlign: 'center',
+                            fontWeight: 'bold',
+                            textTransform: 'capitalize',
+                          }}
+                        >
+                          {isSkipped ? displayName : 'Video tidak tersedia'}
+                        </p>
+                      </div>
+                    )}
                   </div>
                 );
               })}
@@ -342,18 +396,52 @@ const UploadVideo = () => {
             fontSize: '14px',
             textAlign: 'center',
           }}>
-            Sedang Memutar: {currentPlayingVideo.name}
+            Sedang Memutar: {gesturePaths.findIndex(p => p === currentPlayingVideo.url) + 1}. {currentPlayingVideo.name}
           </p>
+
           <video
+            id="floatingVideo"
             src={currentPlayingVideo.url}
-            width="380"
-            height="300"
+            style={{ width: '400px', borderRadius: '8px' }}
             controls
             autoPlay
             muted
           />
+
+          {/* Tombol kontrol */}
+          <div style={{
+            marginTop: '10px',
+            display: 'flex',
+            justifyContent: 'center',
+            gap: '15px',
+          }}>
+            <button
+              onClick={handlePause}
+              title="Pause"
+              className="button-pause"
+            >
+              Pause            
+            </button>
+
+            <button
+              onClick={handleResume}
+              title="Resume"
+              className="button-resume"
+            >
+              Resume
+            </button>
+
+            <button
+              onClick={handleReset}
+              title="Reset"
+              className="button-reset"
+            >
+              Reset
+            </button>
+          </div>
         </div>
       )}
+
     </div>
   );
 };

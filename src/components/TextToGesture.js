@@ -8,6 +8,7 @@ function TextToGesture() {
   const [isListening, setIsListening] = useState(false);
   const [currentVideoPath, setCurrentVideoPath] = useState(null);
   const [currentGesture, setCurrentGesture] = useState(null);
+  // const [isPlaying, setIsPlaying] = useState(false);
   const videoRefs = useRef([]);
 
   const chunkArray = (array, size) => {
@@ -48,14 +49,23 @@ function TextToGesture() {
 
       const mappedGestures = words.map((word, index) => {
         const path = paths[index];
-        const gestureName = path ? decodeURIComponent(path.split('/').pop().split('.')[0]) : 'Gesture not found';
-
+        const rawFilename = path?.split('/').pop() || '';
+        const decodedFilename = decodeURIComponent(rawFilename);
+        let displayName = decodedFilename;
+      
+        if (path?.includes('/uploads/') && decodedFilename.includes('_')) {
+          displayName = decodedFilename.split('_')[0];
+        } else {
+          displayName = decodedFilename.replace('.mp4', '');
+        }
+      
         return {
           word,
-          gestureName,
+          gestureName: displayName,
           path: path || '',
         };
       }).filter(gesture => gesture.gestureName !== 'Gesture not found');
+      
 
       setGestures(mappedGestures);
       videoRefs.current = [];
@@ -98,9 +108,13 @@ function TextToGesture() {
     if (!videoRefs.current.length) return;
 
     let index = 0;
+    // setIsPlaying(true);
 
     const playNext = () => {
-      if (index >= videoRefs.current.length) return;
+      if (index >= videoRefs.current.length) {
+        // setIsPlaying(false);
+        return;
+      }
 
       const currentVideo = videoRefs.current[index];
       const gesture = gestures[index];
@@ -115,8 +129,63 @@ function TextToGesture() {
         };
       }
     };
-
+    pauseAllVideos();
     playNext();
+  };
+
+  const pauseAllVideos = () => {
+    videoRefs.current.forEach((video) => {
+      if (video && !video.paused) {
+        video.pause();
+      }
+    });
+  };
+
+  const resumeAllVideos = () => {
+    if (!videoRefs.current.length) return;
+  
+    let nextIndex = videoRefs.current.findIndex(
+      (video) => video && video.paused && !video.ended
+    );
+  
+    if (nextIndex === -1) return;
+  
+    // setIsPlaying(true);
+  
+    const playNext = () => {
+      if (nextIndex >= videoRefs.current.length) {
+        // setIsPlaying(false);
+        return;
+      }
+  
+      const currentVideo = videoRefs.current[nextIndex];
+      const gesture = gestures[nextIndex];
+  
+      if (currentVideo && gesture) {
+        setCurrentVideoPath(currentVideo.currentSrc || currentVideo.src);
+        setCurrentGesture(gesture);
+  
+        currentVideo.play();
+        currentVideo.onended = () => {
+          nextIndex++;
+          playNext();
+        };
+      }
+    };
+  
+    playNext();
+  };
+  
+
+  const resetAllVideos = () => {
+    videoRefs.current.forEach((video) => {
+      if (video) {
+        video.pause();
+        video.currentTime = 0;
+      }
+    });
+    setCurrentVideoPath(null);
+    setCurrentGesture(null);
   };
 
   return (
@@ -209,20 +278,12 @@ function TextToGesture() {
       {gestures.length > 0 && (
         <div style={{ marginTop: '20px' }}>
           <h2>Translated Gestures</h2>
-          <button
-            onClick={playAllVideos}
-            style={{
-              padding: '10px 20px',
-              backgroundColor: '#28a745',
-              color: '#fff',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              marginBottom: '20px',
-            }}
-          >
-            ▶️ Play All
-          </button>
+          <div style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
+          <button onClick={playAllVideos} className="button play-all-button">Play All</button>
+            <button onClick={pauseAllVideos} className="button-pause">Pause</button>
+            <button onClick={resumeAllVideos} className="button-resume">Resume</button>
+            <button onClick={resetAllVideos} className="button-reset">Reset</button>
+            </div>
 
           {chunkArray(gestures, 5).map((row, rowIndex) => (
             <div key={rowIndex} style={{ display: 'flex', gap: '20px', marginBottom: '20px' }}>
@@ -230,7 +291,7 @@ function TextToGesture() {
                 const globalIndex = rowIndex * 5 + index;
                 return (
                   <div key={index} style={{ textAlign: 'center' }}>
-                    <p style={{ fontWeight: 'bold', marginBottom: '10px' }}>{gestureName}</p>
+                    <p style={{ fontWeight: 'bold', marginBottom: '10px' }}>{`${index + 1}. ${gestureName}`}</p>
                     {path ? (
                       <video
                         ref={(el) => (videoRefs.current[globalIndex] = el)}
@@ -272,20 +333,66 @@ function TextToGesture() {
       )}
 
       {currentVideoPath && (
-        <div style={{ marginTop: '40px' }}>
+        <div style={{
+          position: 'fixed',
+          bottom: '20px',
+          right: '20px',
+          zIndex: 1000,
+          backgroundColor: '#fff',
+          padding: '10px',
+          borderRadius: '8px',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+          width: '400px',
+        }}>
           <h3>Current Preview</h3>
           {currentGesture && (
-            <p style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: '10px' }}>
-              Token: <span style={{ color: '#007bff' }}>{currentGesture.word}</span> &nbsp;
-              Gesture: <span style={{ color: '#28a745' }}>{currentGesture.gestureName}</span>
-            </p>
+           <p>
+           Sedang Memutar: <strong>
+             {(() => {
+               const currentIndex = gestures.findIndex(
+                 (g) => g.word === currentGesture.word && g.path === currentGesture.path
+               );
+               return `${currentIndex + 1}. ${currentGesture.word}`;
+             })()}
+           </strong>
+         </p>         
           )}
           <video
             src={currentVideoPath}
             controls
             autoPlay
-            style={{ width: '400px', borderRadius: '8px', marginBottom: '20px' }}
+            style={{ width: '400px', borderRadius: '8px' }}
           />
+          <div style={{
+            marginTop: '10px',
+            display: 'flex',
+            justifyContent: 'center',
+            gap: '15px',
+          }}>
+            <button
+              onClick={pauseAllVideos}
+              title="Pause"
+              className="button-pause"
+            >
+              Pause
+            </button>
+
+            <button
+              onClick={resumeAllVideos}
+              title="Resume"
+              className="button-resume"
+            >
+              Resume
+            </button>
+
+            <button
+              onClick={resetAllVideos}
+              title="Reset"
+              className="button-reset"
+            >
+              Reset
+            </button>
+          </div>
         </div>
       )}
     </div>

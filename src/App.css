@@ -103,6 +103,48 @@ body{
   background-color: #0056b3;
 }
 
+.button-pause {
+  padding: 10px 20px;
+  font-size: 16px;
+  color: #fff;
+  background-color: #adb5bd;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.button-pause:hover {
+  background-color: #6c757d;
+}
+
+.button-resume {
+  padding: 10px 20px;
+  font-size: 16px;
+  color: #fff;
+  background-color: #38b000;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.button-resume:hover {
+  background-color: #008000;
+}
+
+.button-reset {
+  padding: 10px 20px;
+  font-size: 16px;
+  color: #fff;
+  background-color: #ffb700;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.button-reset:hover {
+  background-color: #ffa200;
+}
+
 .processing-info {
   margin-top: 10px;
   font-size: 14px;
