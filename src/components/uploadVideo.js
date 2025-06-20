@@ -200,8 +200,8 @@ const UploadVideo = () => {
   };
 
   return (
-    <div className="wrapper">
-      <div className="container">
+    <div className="wrapper" style={{ padding: '200px', fontFamily: 'Arial, sans-serif'}}>
+      <div className="container-fitur">
         <h2 className="title">Upload Video atau Masukkan Link</h2>
 
         <div
@@ -229,7 +229,7 @@ const UploadVideo = () => {
           </p>
         </div>
 
-        <div className="toggle-container">
+        <div className="toggle-container-fitur">
           <button
             className={`toggle-button ${isFileUpload ? 'active' : ''}`}
             onClick={() => handleToggle(true)}
@@ -244,9 +244,9 @@ const UploadVideo = () => {
           </button>
         </div>
 
-        <div className="input-container">
+        <div className="input-container-fitur">
           {isFileUpload ? (
-            <div className="file-upload-container">
+            <div className="file-upload-container-fitur">
               <input
                 ref={fileInputRef}
                 type="file"
@@ -265,7 +265,7 @@ const UploadVideo = () => {
               )}
             </div>
           ) : (
-            <div className="link-input-container">
+            <div className="link-input-container-fitur">
               <label htmlFor="videoLink" className="input-label">
                 Masukkan link YouTube
               </label>
@@ -310,7 +310,13 @@ const UploadVideo = () => {
           </div>
 
           <div style={{ display: 'flex', alignItems: 'flex-start' }}>
-            <div className="gesture-container" style={{ flex: 1 }}>
+            <div className="gesture-container-fitur"  style={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                gap: '20px',
+                justifyContent: 'flex-start',
+              }}
+              >
               {gesturePaths.map((gestureUrl, index) => {
                 const path = gestureUrl;
                 const filename = path?.split('/').pop() || '';

@@ -48,24 +48,29 @@ function TextToGesture() {
       const paths = data.paths || [];
 
       const mappedGestures = words.map((word, index) => {
-        const path = paths[index];
-        const rawFilename = path?.split('/').pop() || '';
-        const decodedFilename = decodeURIComponent(rawFilename);
-        let displayName = decodedFilename;
+        const path = paths[index] || '';
+        let displayName = word;
       
-        if (path?.includes('/uploads/') && decodedFilename.includes('_')) {
-          displayName = decodedFilename.split('_')[0];
+        if (path.startsWith('SKIPPED:')) {
+          displayName = path.replace('SKIPPED:', '').trim();
+        } else if (path.includes('/uploads/')) {
+          const filename = path.split('/').pop() || '';
+          if (filename.includes('_')) {
+            displayName = decodeURIComponent(filename.split('_')[0]);
+          } else {
+            displayName = decodeURIComponent(filename.replace('.mp4', ''));
+          }
         } else {
-          displayName = decodedFilename.replace('.mp4', '');
+          const filename = path.split('/').pop() || '';
+          displayName = decodeURIComponent(filename.replace('.mp4', ''));
         }
       
         return {
           word,
           gestureName: displayName,
-          path: path || '',
+          path,
         };
-      }).filter(gesture => gesture.gestureName !== 'Gesture not found');
-      
+      }).filter(gesture => gesture.gestureName !== 'Gesture not found');      
 
       setGestures(mappedGestures);
       videoRefs.current = [];
@@ -189,7 +194,7 @@ function TextToGesture() {
   };
 
   return (
-    <div style={{ padding: '80px', fontFamily: 'Arial, sans-serif' }}>
+    <div style={{ padding: '200px', fontFamily: 'Arial, sans-serif'}}>
       <h1>Text to Sign Language Gesture</h1>
 
       <div
@@ -285,50 +290,67 @@ function TextToGesture() {
             <button onClick={resetAllVideos} className="button-reset">Reset</button>
             </div>
 
-          {chunkArray(gestures, 5).map((row, rowIndex) => (
-            <div key={rowIndex} style={{ display: 'flex', gap: '20px', marginBottom: '20px' }}>
-              {row.map(({ word, gestureName, path }, index) => {
-                const globalIndex = rowIndex * 5 + index;
-                return (
-                  <div key={index} style={{ textAlign: 'center' }}>
-                    <p style={{ fontWeight: 'bold', marginBottom: '10px' }}>{`${index + 1}. ${gestureName}`}</p>
-                    {path ? (
-                      <video
-                        ref={(el) => (videoRefs.current[globalIndex] = el)}
-                        controls
-                        style={{ width: '200px', height: 'auto', borderRadius: '8px' }}
-                        onPlay={() => {
-                          setCurrentVideoPath(path);
-                          setCurrentGesture({ word, gestureName, path });
-                        }}
-                        onError={(e) => {
-                          e.target.style.display = 'none';
-                          alert('Video gagal dimuat!');
-                        }}
-                      >
-                        <source src={path} type="video/mp4" />
-                        Your browser does not support the video tag.
-                      </video>
-                    ) : (
-                      <div style={{
-                        width: '200px',
-                        height: '100px',
-                        backgroundColor: '#f8d7da',
-                        color: '#721c24',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        borderRadius: '8px',
-                        border: '1px solid #f5c6cb',
-                      }}>
-                        Gesture not found
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          ))}
+            {chunkArray(gestures, 5).map((row, rowIndex) => (
+              <div
+                key={rowIndex}
+                style={{ display: 'flex', gap: '20px', marginBottom: '20px' }}
+              >
+                {row.map(({ word, gestureName, path }, index) => {
+                  const globalIndex = rowIndex * 5 + index;
+                  const isSkipped = path.startsWith('SKIPPED:');
+                  const isValidVideo = path && !isSkipped && path.includes('.mp4');
+
+                  return (
+                    <div key={index} style={{ textAlign: 'center' }}>
+                      <p style={{ fontWeight: 'bold', marginBottom: '10px' }}>{`${index + 1}. ${gestureName}`}</p>
+
+                      {isValidVideo ? (
+                        <video
+                          ref={(el) => (videoRefs.current[globalIndex] = el)}
+                          controls
+                          style={{
+                            width: '200px',
+                            height: '150px',
+                            objectFit: 'cover', // memastikan video tidak ter-distorsi
+                            borderRadius: '8px',
+                          }}
+                          onPlay={() => {
+                            setCurrentVideoPath(path);
+                            setCurrentGesture({ word, gestureName, path });
+                          }}
+                          onError={(e) => {
+                            e.target.style.display = 'none';
+                          }}
+                        >
+                          <source src={path} type="video/mp4" />
+                          Your browser does not support the video tag.
+                        </video>
+                      ) : (
+                        <div
+                          style={{
+                            width: '200px',
+                            height: '150px',
+                            backgroundColor: isSkipped ? '#f0f0f0' : '#f8d7da',
+                            color: isSkipped ? '#6c757d' : '#721c24',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            borderRadius: '8px',
+                            border: `1px dashed ${isSkipped ? '#ccc' : '#f5c6cb'}`,
+                            padding: '10px',
+                            fontWeight: 'bold',
+                            fontSize: '14px',
+                          }}
+                        >
+                          {isSkipped ? gestureName : 'Video tidak tersedia'}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            ))}
+
         </div>
       )}
 

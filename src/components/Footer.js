@@ -12,10 +12,10 @@ function Footer() {
               <strong>© 2025 Isyara</strong>. All rights reserved.
             </Col>
             <Col md={6} className="text-md-end text-center">
-              <a href="#home" className="me-3 text-decoration-none text-dark">Home</a>
-              <a href="#features" className="me-3 text-decoration-none text-dark">Fitur</a>
-              <a href="#about" className="me-3 text-decoration-none text-dark">Tentang</a>
-              <a href="#help" className="text-decoration-none text-dark">Bantuan</a>
+              <a href="/#home" className="me-3 text-decoration-none text-dark">Home</a>
+              <a href="/#features" className="me-3 text-decoration-none text-dark">Fitur</a>
+              <a href="/#about" className="me-3 text-decoration-none text-dark">Tentang</a>
+              <a href="/#help" className="text-decoration-none text-dark">Bantuan</a>
             </Col>
           </Row>
         </div>

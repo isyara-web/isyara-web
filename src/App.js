@@ -10,6 +10,9 @@ import CallToAction from './components/CallToAction';
 import Footer from './components/Footer';
 import Header from './components/Header';
 import HomePage from './components/HomePage';
+import TextToGesture from './components/TextToGesture';
+import UploadVideo from './components/uploadVideo';
+import './App.css';
 
 function App() {
   return (
@@ -30,6 +33,8 @@ function App() {
           }
         />
         <Route path="/home" element={<HomePage />} />
+        <Route path="/text-to-gesture" element={<TextToGesture />} />
+        <Route path="/upload-video" element={<UploadVideo />} />
       </Routes>
       <Footer />
     </Router>
