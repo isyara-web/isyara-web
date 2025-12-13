@@ -73,51 +73,11 @@ Paper ini membahas implementasi sistem penerjemahan otomatis bahasa isyarat Indo
 - **Video Processing** - Pemrosesan video untuk ekstraksi audio dan transkripsi
 - **Sign Language Generation** - Generasi video bahasa isyarat BISINDO
 
-### Citation
-
-**IEEE Format:**
-```
-[Author Names], "Automatic Translation of Indonesian Sign Language Based on Multimodal Technology Recognition," 
-International Electronics Symposium 2025, August 5-7, 2025, Surabaya, Indonesia, 
-doi: 10.1109/ICEEIE58664.2023.10386000.
-```
-
-**BibTeX Format:**
-```bibtex
-@inproceedings{isyara2025,
-  title={Automatic Translation of Indonesian Sign Language Based on Multimodal Technology Recognition},
-  author={[Author Names]},
-  booktitle={International Electronics Symposium 2025},
-  year={2025},
-  month={August},
-  pages={[Page Numbers]},
-  address={Surabaya, Indonesia},
-  doi={10.1109/ICEEIE58664.2023.10386000},
-  url={https://ieeexplore.ieee.org/document/11161638}
-}
-```
-
-**APA Format:**
-```
-[Author Names]. (2025, August). Automatic Translation of Indonesian Sign Language Based on Multimodal Technology Recognition. 
-In International Electronics Symposium 2025: Intelligent Connectivity: Enabling Green ICT in Emerging Technology Services for Sustainable Living 
-(pp. [Page Numbers]). IEEE. https://doi.org/10.1109/ICEEIE58664.2023.10386000
-```
-
 ### Konferensi
 
 Paper ini dipresentasikan di **International Electronics Symposium 2025**, sebuah konferensi internasional yang membahas perkembangan teknologi di bidang electronics dan emerging technology services. Konferensi ini diselenggarakan secara hybrid di DoubleTree by Hilton, Surabaya, Indonesia pada tanggal 5-7 Agustus 2025.
 
 **Tema Konferensi:** "Intelligent Connectivity: Enabling Green ICT in Emerging Technology Services for Sustainable Living"
-
-**Topik Penelitian:**
-- Multimodal Translation Systems
-- Sign Language Recognition and Translation
-- Natural Language Processing (NLP)
-- Accessibility Technology
-- Human-Computer Interaction
-- Machine Learning for Sign Language
-- Green ICT and Sustainable Technology
 
 ### Akses Paper
 
