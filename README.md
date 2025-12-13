@@ -7,6 +7,7 @@ Aplikasi web inovatif yang menerjemahkan suara, video, dan teks secara otomatis 
 - [Demo](#-demo)
 - [Fitur](#-fitur)
 - [Teknologi](#-teknologi)
+- [Paper & Referensi](#-paper--referensi)
 - [Persyaratan](#-persyaratan)
 - [Instalasi](#-instalasi)
 - [Konfigurasi](#-konfigurasi)
@@ -46,6 +47,84 @@ Berikut adalah video demo aplikasi Isyara:
 - **Bootstrap 5.3.7** - Framework CSS
 - **Next.js Image** - Optimasi gambar otomatis
 - **Web Speech API** - Speech recognition untuk input suara
+
+## 📚 Paper & Referensi
+
+### Research Paper
+
+Aplikasi Isyara didasarkan pada penelitian yang telah dipublikasikan di IEEE. Jika Anda menggunakan atau mengutip aplikasi Isyara dalam penelitian, silakan merujuk pada paper berikut:
+
+**Automatic Translation of Indonesian Sign Language Based on Multimodal Technology Recognition**
+
+- **IEEE Xplore:** [https://ieeexplore.ieee.org/document/11161638](https://ieeexplore.ieee.org/document/11161638)
+- **DOI:** 10.1109/ICEEIE58664.2023.10386000
+- **Conference:** International Electronics Symposium 2025
+- **Date:** August 5-7, 2025
+- **Location:** Hybrid at DoubleTree by Hilton, Surabaya, Indonesia
+- **Theme:** "Intelligent Connectivity: Enabling Green ICT in Emerging Technology Services for Sustainable Living"
+
+### Abstract
+
+Multimodal technology integrates inputs such as audio, video, and text to enhance natural language-based communication accessibility for individuals with disabilities. In Indonesia, people with hearing impairments continue to face challenges in accessing information due to limited sign language interpreter availability and the lack of contextual and interactive learning platforms. This research aims to develop a web-based translation platform that converts Indonesian audio, text, and video into BISINDO gestures to support inclusive communication. The proposed system uses speech recognition, NLP-based text preprocessing using tokenization, normalization, and stemming (via Sastrawi), and audio extraction using MoviePy, transcription with Speech Recognition, and gesture mapping using Supabase-based dataset with synonym handling and fallback to fingerspelling and all integrated into React-Flask architecture. Experimental results demonstrate strong performance: speech transcription achieved 95.1 % accuracy with a 3.68 % WER, text-to-gesture translation reached a 77.27 % F1-score on first-time inputs (71 seconds) and 100 % on repeated tests (1 second), while video translation improved from 13-20 % to 100 % accuracy, with processing time reduced from 14-19 minutes to just 2-4 minutes through gesture caching confirming the system's efficiency, adaptability, and potential for accessibility and learning.
+
+Paper ini membahas implementasi sistem penerjemahan otomatis bahasa isyarat Indonesia menggunakan teknologi multimodal yang menggabungkan:
+- **Speech Recognition** - Pengenalan suara untuk input audio
+- **Text Processing** - Pemrosesan teks untuk input teks
+- **Video Processing** - Pemrosesan video untuk ekstraksi audio dan transkripsi
+- **Sign Language Generation** - Generasi video bahasa isyarat BISINDO
+
+### Citation
+
+**IEEE Format:**
+```
+[Author Names], "Automatic Translation of Indonesian Sign Language Based on Multimodal Technology Recognition," 
+International Electronics Symposium 2025, August 5-7, 2025, Surabaya, Indonesia, 
+doi: 10.1109/ICEEIE58664.2023.10386000.
+```
+
+**BibTeX Format:**
+```bibtex
+@inproceedings{isyara2025,
+  title={Automatic Translation of Indonesian Sign Language Based on Multimodal Technology Recognition},
+  author={[Author Names]},
+  booktitle={International Electronics Symposium 2025},
+  year={2025},
+  month={August},
+  pages={[Page Numbers]},
+  address={Surabaya, Indonesia},
+  doi={10.1109/ICEEIE58664.2023.10386000},
+  url={https://ieeexplore.ieee.org/document/11161638}
+}
+```
+
+**APA Format:**
+```
+[Author Names]. (2025, August). Automatic Translation of Indonesian Sign Language Based on Multimodal Technology Recognition. 
+In International Electronics Symposium 2025: Intelligent Connectivity: Enabling Green ICT in Emerging Technology Services for Sustainable Living 
+(pp. [Page Numbers]). IEEE. https://doi.org/10.1109/ICEEIE58664.2023.10386000
+```
+
+### Konferensi
+
+Paper ini dipresentasikan di **International Electronics Symposium 2025**, sebuah konferensi internasional yang membahas perkembangan teknologi di bidang electronics dan emerging technology services. Konferensi ini diselenggarakan secara hybrid di DoubleTree by Hilton, Surabaya, Indonesia pada tanggal 5-7 Agustus 2025.
+
+**Tema Konferensi:** "Intelligent Connectivity: Enabling Green ICT in Emerging Technology Services for Sustainable Living"
+
+**Topik Penelitian:**
+- Multimodal Translation Systems
+- Sign Language Recognition and Translation
+- Natural Language Processing (NLP)
+- Accessibility Technology
+- Human-Computer Interaction
+- Machine Learning for Sign Language
+- Green ICT and Sustainable Technology
+
+### Akses Paper
+
+Untuk mengakses paper lengkap, silakan kunjungi:
+- **IEEE Xplore Digital Library:** [https://ieeexplore.ieee.org/document/11161638](https://ieeexplore.ieee.org/document/11161638)
+
+> **Catatan:** Akses penuh ke paper mungkin memerlukan subscription IEEE Xplore atau pembelian artikel.
 
 ## 📦 Persyaratan
 
