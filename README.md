@@ -4,6 +4,7 @@ Aplikasi web inovatif yang menerjemahkan suara, video, dan teks secara otomatis 
 
 ## 📋 Daftar Isi
 
+- [Demo](#-demo)
 - [Fitur](#-fitur)
 - [Teknologi](#-teknologi)
 - [Persyaratan](#-persyaratan)
@@ -19,6 +20,24 @@ Aplikasi web inovatif yang menerjemahkan suara, video, dan teks secara otomatis 
 - [Arsitektur](#-arsitektur)
 - [Kontribusi](#-kontribusi)
 - [Lisensi](#-lisensi)
+
+## 🎬 Demo
+
+Berikut adalah video demo aplikasi Isyara:
+
+### Demo 1: Fitur Upload Video dan Text to Gesture
+
+<iframe src="https://drive.google.com/file/d/1O9qmfNvw-VEldx0IpW8flFzALTBh-dQD/preview" width="640" height="480" allow="autoplay"></iframe>
+
+**Link alternatif:** [Tonton di Google Drive](https://drive.google.com/file/d/1O9qmfNvw-VEldx0IpW8flFzALTBh-dQD/view?usp=sharing)
+
+### Demo 2: Fitur Tambahan
+
+<iframe src="https://drive.google.com/file/d/10JJWPEwGhFs7OGMNpkjdo3TMQS-Uae5y/preview" width="640" height="480" allow="autoplay"></iframe>
+
+**Link alternatif:** [Tonton di Google Drive](https://drive.google.com/file/d/10JJWPEwGhFs7OGMNpkjdo3TMQS-Uae5y/view?usp=sharing)
+
+> **Catatan:** Jika video tidak muncul, klik link alternatif untuk menonton di Google Drive.
 
 ## ✨ Fitur
 
