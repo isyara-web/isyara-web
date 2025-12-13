@@ -1,8 +1,17 @@
-// src/components/Footer.js
+'use client';
+
 import React from 'react';
 import { Container, Row, Col } from 'react-bootstrap';
+import { FooterLink } from './ui';
 
 function Footer() {
+  const footerLinks = [
+    { href: '/#home', label: 'Home' },
+    { href: '/#features', label: 'Fitur' },
+    { href: '/#about', label: 'Tentang' },
+    { href: '/#help', label: 'Bantuan' }
+  ];
+
   return (
     <footer className="bg-light py-4 mt-5">
       <Container>
@@ -12,10 +21,11 @@ function Footer() {
               <strong>© 2025 Isyara</strong>. All rights reserved.
             </Col>
             <Col md={6} className="text-md-end text-center">
-              <a href="/#home" className="me-3 text-decoration-none text-dark">Home</a>
-              <a href="/#features" className="me-3 text-decoration-none text-dark">Fitur</a>
-              <a href="/#about" className="me-3 text-decoration-none text-dark">Tentang</a>
-              <a href="/#help" className="text-decoration-none text-dark">Bantuan</a>
+              {footerLinks.map((link, index) => (
+                <FooterLink key={index} href={link.href}>
+                  {link.label}
+                </FooterLink>
+              ))}
             </Col>
           </Row>
         </div>

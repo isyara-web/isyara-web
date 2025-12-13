@@ -1,29 +1,31 @@
-// src/components/CallToAction.js
+'use client';
+
 import React from 'react';
-import { Container, Row, Col, Button } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom';
+import { Row, Col } from 'react-bootstrap';
+import { useRouter } from 'next/navigation';
+import { Section, Button } from '../components/ui';
 
 function CallToAction() {
-  const navigate = useNavigate();
+  const router = useRouter();
   
   return (
-    <section className="bg-white py-5 px-3">
+    <Section bg="bg-white" className="px-3">
       <div className="mx-auto" style={{ maxWidth: '960px' }}>
-        <Container className="shadow-lg p-4 rounded">
+        <Section.Container className="shadow-lg p-4 rounded">
           <Row className="align-items-center text-md-start text-center">
             <Col md={9}>
               <h4 className="fw-bold mb-2">Yuk Mulai Sekarang!</h4>
               <p className="mb-0">Ingin menerjemahkan teks, suara, atau video ke Bahasa Isyarat?</p>
             </Col>
             <Col md={3} className="text-md-end mt-3 mt-md-0">
-              <Button variant="danger" onClick={() => navigate('/home')}>
+              <Button variant="danger" onClick={() => router.push('/home')}>
                 Mulai Sekarang
               </Button>            
             </Col>
           </Row>
-        </Container>
+        </Section.Container>
       </div>
-    </section>
+    </Section>
   );
 }
 

@@ -1,25 +1,24 @@
-// src/components/WhyChoose.js
+'use client';
+
 import React from 'react';
-import { Container, Row, Col } from 'react-bootstrap';
+import { Row, Col } from 'react-bootstrap';
+import Image from 'next/image';
+import { Section } from '../components/ui';
+import { WHY_CHOOSE_REASONS } from '../constants';
 
 function WhyChoose() {
-  const reasons = [
-    "Akurasi terjemahan tinggi",
-    "Antarmuka ramah pengguna",
-    "Bisa diakses langsung dari browser",
-    "Gratis untuk digunakan dalam pendidikan dan pembelajaran mandiri"
-  ];
-
   return (
-    <section className="py-5 bg-white" id="about">
-      <Container>
+    <Section id="about" bg="bg-white">
+      <Section.Container>
         <Row className="align-items-center py-5">
           <Col md={6} className="text-center">
-            <img
-              src="./images/illustration_2.svg"
+            <Image
+              src="/images/Illustration_2.svg"
               alt="Why Choose"
+              width={400}
+              height={350}
               className="img-fluid"
-              style={{ maxHeight: '350px' }}
+              style={{ maxHeight: '350px', width: 'auto' }}
             />
           </Col>
           <Col md={6}>
@@ -28,10 +27,9 @@ function WhyChoose() {
               Temukan berbagai fitur yang kami sediakan dengan pengalaman menyenangkan <br/> setiap fitur memiliki fungsi uniknya masing-masing.
             </p>
             <ul className="list-unstyled mt-4">
-              {reasons.map((reason, index) => (
+              {WHY_CHOOSE_REASONS.map((reason, index) => (
                 <li key={index} className="d-flex align-items-start mb-2">
                   <span className="me-2">
-                    {/* SVG centang hijau */}
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       width="18"
@@ -48,8 +46,8 @@ function WhyChoose() {
             </ul>
           </Col>
         </Row>
-      </Container>
-    </section>
+      </Section.Container>
+    </Section>
   );
 }
 

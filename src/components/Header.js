@@ -1,20 +1,31 @@
-// src/components/Header.js
+'use client';
+
 import React from 'react';
-import { Container, Navbar, Nav, Button } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom';
+import { Container, Navbar, Nav } from 'react-bootstrap';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import Image from 'next/image';
+import { Button } from './ui';
 
 function Header() {
-  const navigate = useNavigate();
+  const router = useRouter();
+
+  const navLinks = [
+    { href: '/#home', label: 'Home' },
+    { href: '/#features', label: 'Fitur' },
+    { href: '/#about', label: 'Tentang' },
+    { href: '/#help', label: 'Bantuan' }
+  ];
 
   return (
     <header>
       <Navbar expand="lg" bg="white" variant="light" className="shadow-sm fixed-top">
         <Container>
           <Navbar.Brand href="/#home" className="fw-bold d-flex align-items-center">
-            <img
-              src="./images/logo_isyara.svg"
-              width="200"
-              height="60"
+            <Image
+              src="/images/logo_isyara.svg"
+              width={200}
+              height={60}
               className="d-inline-block align-top me-2"
               alt="Isyara Logo"
             />
@@ -22,15 +33,17 @@ function Header() {
           <Navbar.Toggle aria-controls="isyara-navbar-nav" />
           <Navbar.Collapse id="isyara-navbar-nav">
             <Nav className="ms-auto">
-              <Nav.Link href="/#home">Home</Nav.Link>
-              <Nav.Link href="/#features">Fitur</Nav.Link>
-              <Nav.Link href="/#about">Tentang</Nav.Link>
-              <Nav.Link href="/#help">Bantuan</Nav.Link>
+              {navLinks.map((link) => (
+                <Nav.Link key={link.href} href={link.href}>
+                  {link.label}
+                </Nav.Link>
+              ))}
             </Nav>
             <Button
               variant="outline-danger"
-              style={{ marginLeft: '40px', backgroundColor: 'white', borderColor: 'red', color: 'red' }}
-              onClick={() => navigate('/home')}
+              onClick={() => router.push('/home')}
+              className="ms-4"
+              style={{ backgroundColor: 'white', borderColor: 'red', color: 'red' }}
             >
               Mulai Sekarang
             </Button>
